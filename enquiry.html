@@ -458,11 +458,8 @@
     </div>
 
     <script>
-        // Google Apps Script URL - REPLACE WITH YOUR GOOGLE APPS SCRIPT DEPLOYMENT URL
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCd8xLhFsA5snExlYlBbi6Lbbt5jRzyroxfTMlzg1m017n8T-PbbkxGGygVgvlwMXv/exec';
-
-        // Courier API URL - REPLACE WITH YOUR COURIER API ENDPOINT
-        const COURIER_LOCKERS_API = 'https://api.courierguy.co.za/lockers';  // Replace with actual endpoint
+        // Google Apps Script URL (handles both enquiries and locker fetches)
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLfcK3TxZ6o0M5DkVMOIuM0AS3jUwuxvkNUMZ4V9Hr3Ou_pRVYFFfEK2rTrXZtzUZT/exec';
 
         // Product list
         const PRODUCTS = [
@@ -523,7 +520,16 @@
             const lockerDropdown = document.getElementById('lockerDropdown');
 
             try {
-                const response = await fetch(COURIER_LOCKERS_API);
+                // Use POST method to fetch lockers from Google Apps Script
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'getLockers' })
+                });
+
                 const lockers = await response.json();
 
                 // Clear loading option
