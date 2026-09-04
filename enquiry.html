@@ -405,14 +405,25 @@
 
             <!-- DELIVERY OPTIONS -->
             <div class="section">
-                <div class="section-title">Delivery Options</div>
+                <div class="section-title">Delivery Options - We deliver Pudo Lockers at R150 included on every order.
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="citySearch">City/Area *</label>
+                        <input type="text" id="citySearch" name="citySearch" placeholder="e.g., Johannesburg, Cape Town, Durban" required>
+                    </div>
+                </div>
+
                 <div class="form-grid">
                     <div class="form-group" style="grid-column: 1; align-items: flex-start;">
                         <label style="display: flex; align-items: center; font-weight: normal; margin-bottom: 0;">
-                            <input type="checkbox" id="doorDelivery" name="doorDelivery" style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
+                            <input type="checkbox" id="doorDelivery" name="doorDelivery"
+                                style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
                             Delivery to Door (+R50)
                         </label>
-                        <p style="font-size: 12px; color: #666; margin-top: 8px;">Check for door-to-door delivery, otherwise choose locker pickup below</p>
+                        <p style="font-size: 12px; color: #666; margin-top: 8px;">Check for door-to-door delivery,
+                            otherwise choose locker pickup below</p>
                     </div>
                 </div>
 
@@ -459,7 +470,21 @@
 
     <script>
         // Google Apps Script URL (handles both enquiries and locker fetches)
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLfcK3TxZ6o0M5DkVMOIuM0AS3jUwuxvkNUMZ4V9Hr3Ou_pRVYFFfEK2rTrXZtzUZT/exec';
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVLa0CyIMVX9BDWXBXQmw2s3jFdPD27QR4xMOSJoMnuJPRHWUH16Bv4iW09xwZURZ2/exec';
+
+        // City to coordinates mapping (South Africa)
+        const CITY_COORDINATES = {
+            'johannesburg': { lat: -26.2023, lng: 28.0436 },
+            'pretoria': { lat: -25.7461, lng: 28.2281 },
+            'cape town': { lat: -33.9249, lng: 18.4241 },
+            'durban': { lat: -29.8587, lng: 31.0218 },
+            'bloemfontein': { lat: -29.1200, lng: 25.5200 },
+            'port elizabeth': { lat: -33.9841, lng: 25.6053 },
+            'east london': { lat: -33.0156, lng: 27.9116 },
+            'pietermaritzburg': { lat: -29.6100, lng: 30.3833 },
+            'polokwane': { lat: -23.9012, lng: 29.4197 },
+            'nelspruit': { lat: -25.4834, lng: 30.9667 }
+        };
 
         // Product list
         const PRODUCTS = [
@@ -494,8 +519,31 @@
         window.addEventListener('load', () => {
             addItemRow();
             setupDeliveryOptions();
-            loadLockers();
+            setupCitySearch();
         });
+
+        function setupCitySearch() {
+            const citySearch = document.getElementById('citySearch');
+            const lockerDropdown = document.getElementById('lockerDropdown');
+
+            citySearch.addEventListener('change', function() {
+                const city = this.value.toLowerCase().trim();
+                if (city && CITY_COORDINATES[city]) {
+                    const coords = CITY_COORDINATES[city];
+                    loadLockers(coords.lat, coords.lng);
+                } else if (city) {
+                    lockerDropdown.innerHTML = '<option value="">City not found. Try another.</option>';
+                }
+            });
+
+            citySearch.addEventListener('blur', function() {
+                const city = this.value.toLowerCase().trim();
+                if (city && CITY_COORDINATES[city]) {
+                    const coords = CITY_COORDINATES[city];
+                    loadLockers(coords.lat, coords.lng);
+                }
+            });
+        }
 
         function setupDeliveryOptions() {
             const doorDeliveryCheckbox = document.getElementById('doorDelivery');
@@ -516,40 +564,40 @@
             lockerSection.style.display = 'none';
         }
 
-        async function loadLockers() {
+        function loadLockers(lat, lng) {
             const lockerDropdown = document.getElementById('lockerDropdown');
+            lockerDropdown.innerHTML = '<option value="">Loading lockers...</option>';
 
-            try {
-                // Use POST method to fetch lockers from Google Apps Script
-                // Note: No Content-Type header to avoid CORS preflight
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getLockers' })
-                });
-
-                const responseText = await response.text();
-                console.log('API Response:', responseText);
-
-                const lockers = JSON.parse(responseText);
-
-                // Clear loading option
-                lockerDropdown.innerHTML = '<option value="">Select Locker Location</option>';
-
-                // Add locker options
-                if (Array.isArray(lockers) && lockers.length > 0) {
-                    lockers.forEach(locker => {
-                        const option = document.createElement('option');
-                        option.value = locker.id || locker.code;
-                        option.textContent = locker.name || locker.location || `${locker.city} - ${locker.address}`;
-                        lockerDropdown.appendChild(option);
+            (async function() {
+                try {
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'getLockers', lat: lat, lng: lng })
                     });
-                } else {
-                    lockerDropdown.innerHTML = '<option value="">No lockers available</option>';
+
+                    const responseText = await response.text();
+                    console.log('API Response:', responseText);
+                    const lockers = JSON.parse(responseText);
+
+                    // Clear loading option
+                    lockerDropdown.innerHTML = '<option value="">Select Locker Location</option>';
+
+                    // Add locker options
+                    if (Array.isArray(lockers) && lockers.length > 0) {
+                        lockers.forEach(locker => {
+                            const option = document.createElement('option');
+                            option.value = locker.id || locker.code;
+                            option.textContent = locker.name || locker.location || `${locker.city} - ${locker.address}`;
+                            lockerDropdown.appendChild(option);
+                        });
+                    } else {
+                        lockerDropdown.innerHTML = '<option value="">No lockers available</option>';
+                    }
+                } catch (error) {
+                    console.error('Error loading lockers:', error);
+                    lockerDropdown.innerHTML = '<option value="">Error loading lockers. Try another city.</option>';
                 }
-            } catch (error) {
-                console.error('Error loading lockers:', error);
-                lockerDropdown.innerHTML = '<option value="">Error loading lockers. Please try again.</option>';
-            }
+            })();
         }
 
         function addItemRow() {
