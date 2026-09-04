@@ -521,15 +521,16 @@
 
             try {
                 // Use POST method to fetch lockers from Google Apps Script
+                // Note: No Content-Type header to avoid CORS preflight
                 const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({ action: 'getLockers' })
                 });
 
-                const lockers = await response.json();
+                const responseText = await response.text();
+                console.log('API Response:', responseText);
+
+                const lockers = JSON.parse(responseText);
 
                 // Clear loading option
                 lockerDropdown.innerHTML = '<option value="">Select Locker Location</option>';
