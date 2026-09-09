@@ -627,7 +627,7 @@
                             )
                         }))
                         .filter(locker => locker.distance <= 5)
-                        .sort((a, b) => a.distance - b.distance);
+                        .sort((a, b) => (a.name || a.location || a.address || 'Locker').localeCompare(b.name || b.location || b.address || 'Locker'));
 
                     if (lockersWithDistance.length > 0) {
                         lockersWithDistance.forEach(locker => {
