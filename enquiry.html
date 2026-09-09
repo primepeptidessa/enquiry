@@ -388,43 +388,60 @@
                         <label for="phone">Phone *</label>
                         <input type="tel" id="phone" name="phone" autocomplete="tel" required>
                     </div>
-                    <div class="form-group">
-                        <label for="address">Address</label>
-                        <input type="text" id="address" name="address" autocomplete="street-address">
-                    </div>
-                    <div class="form-group">
-                        <label for="city">Location *</label>
-                        <input type="text" id="city" name="city" placeholder="e.g., Johannesburg, Sandton, 123 Main St" autocomplete="address-level2" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="postalCode">Postal Code</label>
-                        <input type="text" id="postalCode" name="postalCode" autocomplete="postal-code">
-                    </div>
                 </div>
             </div>
 
             <!-- DELIVERY OPTIONS -->
             <div class="section">
-                <div class="section-title">Delivery Options - We deliver Pudo Lockers at R150 included on every order.</div>
+                <div class="section-title">Delivery Options</div>
 
-                <div class="form-grid">
-                    <div class="form-group" style="grid-column: 1; align-items: flex-start;">
-                        <label style="display: flex; align-items: center; font-weight: normal; margin-bottom: 0;">
-                            <input type="checkbox" id="doorDelivery" name="doorDelivery"
-                                style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
-                            Delivery to Door (+R50)
-                        </label>
-                        <p style="font-size: 12px; color: #666; margin-top: 8px;">Check for door-to-door delivery,
-                            otherwise choose locker pickup below</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <!-- Column 1: Pudo Locker Delivery -->
+                    <div>
+                        <div class="form-group" style="margin-bottom: 20px; align-items: flex-start;">
+                            <label style="display: flex; align-items: center; font-weight: normal; margin-bottom: 8px;">
+                                <input type="radio" id="pudoDelivery" name="deliveryType" value="pudo"
+                                    style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                                <span style="font-weight: bold;">Pudo Locker Delivery - R150</span>
+                            </label>
+                        </div>
+
+                        <div id="pudoSection" style="display: none;">
+                            <div class="form-group">
+                                <label for="pudoCity">City, Suburb *</label>
+                                <input type="text" id="pudoCity" name="pudoCity" placeholder="e.g., Johannesburg, Sandton" autocomplete="address-level2">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lockerDropdown">Select a Locker *</label>
+                                <select id="lockerDropdown" name="lockerDropdown">
+                                    <option value="">Select a locker...</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div id="lockerSection" style="margin-top: 20px;">
-                    <div class="form-group">
-                        <label for="lockerDropdown">Select Locker Location *</label>
-                        <select id="lockerDropdown" name="lockerDropdown" required>
-                            <option value="">Select a locker...</option>
-                        </select>
+                    <!-- Column 2: Door Delivery -->
+                    <div>
+                        <div class="form-group" style="margin-bottom: 20px; align-items: flex-start;">
+                            <label style="display: flex; align-items: center; font-weight: normal; margin-bottom: 8px;">
+                                <input type="radio" id="doorDelivery" name="deliveryType" value="door"
+                                    style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                                <span style="font-weight: bold;">Delivery to Door - R200</span>
+                            </label>
+                        </div>
+
+                        <div id="doorSection" style="display: none;">
+                            <div class="form-group">
+                                <label for="doorAddress">Street Address *</label>
+                                <input type="text" id="doorAddress" name="doorAddress" placeholder="e.g., 123 Main St" autocomplete="street-address">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="doorPostalCode">Postal Code *</label>
+                                <input type="text" id="doorPostalCode" name="doorPostalCode" placeholder="e.g., 2000" autocomplete="postal-code">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -505,22 +522,21 @@
             addItemRow();
             setupDeliveryOptions();
             setupCityWatcher();
-            loadLockersFromCity();
         });
 
         function setupCityWatcher() {
-            const cityField = document.getElementById('city');
+            const pudoCityField = document.getElementById('pudoCity');
 
-            cityField.addEventListener('change', loadLockersFromCity);
-            cityField.addEventListener('blur', loadLockersFromCity);
+            pudoCityField.addEventListener('change', loadLockersFromCity);
+            pudoCityField.addEventListener('blur', loadLockersFromCity);
         }
 
         async function loadLockersFromCity() {
-            const locationField = document.getElementById('city');
+            const locationField = document.getElementById('pudoCity');
             const location = locationField.value.trim();
 
             if (!location) {
-                document.getElementById('lockerDropdown').innerHTML = '<option value="">Enter your city/suburb/street</option>';
+                document.getElementById('lockerDropdown').innerHTML = '<option value="">Enter your city/suburb</option>';
                 return;
             }
 
@@ -549,22 +565,32 @@
         }
 
         function setupDeliveryOptions() {
-            const doorDeliveryCheckbox = document.getElementById('doorDelivery');
-            const lockerSection = document.getElementById('lockerSection');
+            const pudoRadio = document.getElementById('pudoDelivery');
+            const doorRadio = document.getElementById('doorDelivery');
+            const pudoSection = document.getElementById('pudoSection');
+            const doorSection = document.getElementById('doorSection');
 
-            // Show/hide locker section based on checkbox
-            doorDeliveryCheckbox.addEventListener('change', function () {
+            pudoRadio.addEventListener('change', function () {
                 if (this.checked) {
-                    lockerSection.style.display = 'none';
-                    document.getElementById('lockerDropdown').removeAttribute('required');
-                } else {
-                    lockerSection.style.display = 'block';
+                    pudoSection.style.display = 'block';
+                    doorSection.style.display = 'none';
+                    document.getElementById('pudoCity').setAttribute('required', 'required');
                     document.getElementById('lockerDropdown').setAttribute('required', 'required');
+                    document.getElementById('doorAddress').removeAttribute('required');
+                    document.getElementById('doorPostalCode').removeAttribute('required');
                 }
             });
 
-            // Initially show locker section
-            lockerSection.style.display = 'block';
+            doorRadio.addEventListener('change', function () {
+                if (this.checked) {
+                    doorSection.style.display = 'block';
+                    pudoSection.style.display = 'none';
+                    document.getElementById('doorAddress').setAttribute('required', 'required');
+                    document.getElementById('doorPostalCode').setAttribute('required', 'required');
+                    document.getElementById('pudoCity').removeAttribute('required');
+                    document.getElementById('lockerDropdown').removeAttribute('required');
+                }
+            });
         }
 
         function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -744,12 +770,51 @@
             });
 
             // Validate delivery options
-            const doorDelivery = document.getElementById('doorDelivery').checked;
-            const lockerDropdown = document.getElementById('lockerDropdown').value;
+            const deliveryType = document.querySelector('input[name="deliveryType"]:checked');
 
-            if (!doorDelivery && !lockerDropdown) {
-                showAlert('error', 'Please select either door delivery or a locker location.');
+            if (!deliveryType) {
+                showAlert('error', 'Please select a delivery option.');
                 return;
+            }
+
+            let deliveryInfo = {};
+            let deliveryCharge = 0;
+            let address = '';
+
+            if (deliveryType.value === 'pudo') {
+                const pudoCity = document.getElementById('pudoCity').value;
+                const lockerCode = document.getElementById('lockerDropdown').value;
+                const lockerName = document.getElementById('lockerDropdown').options[document.getElementById('lockerDropdown').selectedIndex]?.text;
+
+                if (!pudoCity || !lockerCode) {
+                    showAlert('error', 'Please complete all Pudo Locker delivery fields.');
+                    return;
+                }
+
+                address = `Pudo Locker: ${lockerName}, ${pudoCity}`;
+                deliveryCharge = 150;
+                deliveryInfo = {
+                    type: 'pudo',
+                    city: pudoCity,
+                    lockerCode: lockerCode,
+                    lockerName: lockerName
+                };
+            } else if (deliveryType.value === 'door') {
+                const doorAddress = document.getElementById('doorAddress').value;
+                const doorPostalCode = document.getElementById('doorPostalCode').value;
+
+                if (!doorAddress || !doorPostalCode) {
+                    showAlert('error', 'Please complete all door delivery fields.');
+                    return;
+                }
+
+                address = `${doorAddress}, ${doorPostalCode}`;
+                deliveryCharge = 200;
+                deliveryInfo = {
+                    type: 'door',
+                    address: doorAddress,
+                    postalCode: doorPostalCode
+                };
             }
 
             const enquiryData = {
@@ -758,15 +823,11 @@
                     name: document.getElementById('customerName').value,
                     email: document.getElementById('email').value,
                     phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value,
-                    city: document.getElementById('city').value,
-                    postalCode: document.getElementById('postalCode').value
+                    address: address
                 },
                 items: items,
-                delivery: {
-                    doorDelivery: doorDelivery,
-                    lockerCode: doorDelivery ? null : lockerDropdown
-                }
+                delivery: deliveryInfo,
+                deliveryCharge: deliveryCharge
             };
 
             // Show loading
