@@ -595,6 +595,9 @@
 
                     const data = await response.json();
                     console.log('API Response:', data);
+                    if (data.pickup_points && data.pickup_points.length > 0) {
+                        console.log('Sample locker object:', data.pickup_points[0]);
+                    }
 
                     // Clear loading option
                     lockerDropdown.innerHTML = '<option value="">Select Locker Location</option>';
@@ -616,8 +619,21 @@
                         lockers = data.data;
                     }
 
-                    // Sort lockers alphabetically (API already returns them by proximity)
-                    const sortedLockers = lockers
+                    // Filter by 5km radius and sort alphabetically
+                    const filteredLockers = lockers.filter(locker => {
+                        const lockerLat = locker.latitude || locker.lat;
+                        const lockerLng = locker.longitude || locker.lng;
+
+                        if (!lockerLat || !lockerLng) {
+                            console.warn('Locker missing coordinates:', locker);
+                            return false;
+                        }
+
+                        const distance = calculateDistance(lat, lng, parseFloat(lockerLat), parseFloat(lockerLng));
+                        return distance <= 5; // 5km radius
+                    });
+
+                    const sortedLockers = filteredLockers
                         .sort((a, b) => (a.name || a.location || a.address || 'Locker').localeCompare(b.name || b.location || b.address || 'Locker'));
 
                     if (sortedLockers.length > 0) {
@@ -628,7 +644,7 @@
                             lockerDropdown.appendChild(option);
                         });
                     } else {
-                        lockerDropdown.innerHTML = '<option value="">No lockers available</option>';
+                        lockerDropdown.innerHTML = '<option value="">No lockers within 5km</option>';
                     }
                 } catch (error) {
                     console.error('Error loading lockers:', error);
