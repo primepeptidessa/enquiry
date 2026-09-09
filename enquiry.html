@@ -461,8 +461,9 @@
     </div>
 
     <script>
-        // Supabase Edge Function URL for locker fetches
+        // Supabase configuration
         const SUPABASE_LOCKER_URL = 'https://avjzzzdpnmkgxzxrpxdm.supabase.co/functions/v1/get-lockers';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2anp6emRwbm1rZ3h6eHJweGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5MDg2MzQsImV4cCI6MjEwNDQ4NDYzNH0.hsRS8n5W0iN5ozuhu5gXSMmH7_VZZRF4jtrGT7iPjn0';
 
         // Google Apps Script URL for enquiry submissions
         const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9ThlF7Qnxe2BlesdW62g_vV0fNn1U74JHzsfgDVQ6wOPbN3A-i17ERktjggsrRODC/exec';
@@ -574,7 +575,10 @@
                 try {
                     const response = await fetch(SUPABASE_LOCKER_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        },
                         body: JSON.stringify({ lat: lat, lng: lng })
                     });
 
