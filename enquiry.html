@@ -331,6 +331,18 @@
             .btn {
                 width: 100%;
             }
+
+            /* Delivery options responsive */
+            .section > div[style*="display: grid"] {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+
+            .form-group input,
+            .form-group select {
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
         }
 
         .loading {
@@ -395,21 +407,21 @@
             <div class="section">
                 <div class="section-title">Delivery Options</div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; grid-auto-flow: row;">
                     <!-- Column 1: Pudo Locker Delivery -->
-                    <div>
+                    <div style="min-width: 0;">
                         <div class="form-group" style="margin-bottom: 20px; align-items: flex-start;">
                             <label style="display: flex; align-items: center; font-weight: normal; margin-bottom: 8px;">
                                 <input type="radio" id="pudoDelivery" name="deliveryType" value="pudo"
-                                    style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
-                                <span style="font-weight: bold;">Pudo Locker Delivery - R150</span>
+                                    style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer; flex-shrink: 0;">
+                                <span style="font-weight: bold;">Pudo Locker - R150</span>
                             </label>
                         </div>
 
                         <div id="pudoSection" style="display: none;">
                             <div class="form-group">
                                 <label for="pudoCity">City, Suburb *</label>
-                                <input type="text" id="pudoCity" name="pudoCity" placeholder="e.g., Johannesburg, Sandton" autocomplete="address-level2">
+                                <input type="text" id="pudoCity" name="pudoCity" placeholder="e.g., Sandton" autocomplete="address-level2">
                             </div>
 
                             <div class="form-group">
@@ -418,22 +430,26 @@
                                     <option value="">Select a locker...</option>
                                 </select>
                             </div>
+
+                            <p style="font-size: 13px; color: #666; margin-top: 15px;">
+                                <a href="https://thecourierguy.co.za/locations/" target="_blank" style="color: #1bb7cd; text-decoration: none; font-weight: bold;">Click here</a> if you struggle to find your locker
+                            </p>
                         </div>
                     </div>
 
                     <!-- Column 2: Door Delivery -->
-                    <div>
+                    <div style="min-width: 0;">
                         <div class="form-group" style="margin-bottom: 20px; align-items: flex-start;">
                             <label style="display: flex; align-items: center; font-weight: normal; margin-bottom: 8px;">
                                 <input type="radio" id="doorDelivery" name="deliveryType" value="door"
-                                    style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
-                                <span style="font-weight: bold;">Delivery to Door - R200</span>
+                                    style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer; flex-shrink: 0;">
+                                <span style="font-weight: bold;">Door to Door - R200</span>
                             </label>
                         </div>
 
                         <div id="doorSection" style="display: none;">
                             <div class="form-group">
-                                <label for="doorAddress">Street Address *</label>
+                                <label for="doorAddress">Delivery Address *</label>
                                 <input type="text" id="doorAddress" name="doorAddress" placeholder="e.g., 123 Main St" autocomplete="street-address">
                             </div>
 
