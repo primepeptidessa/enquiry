@@ -393,8 +393,8 @@
                         <input type="text" id="address" name="address" autocomplete="street-address">
                     </div>
                     <div class="form-group">
-                        <label for="city">City</label>
-                        <input type="text" id="city" name="city" autocomplete="address-level2">
+                        <label for="city">Location *</label>
+                        <input type="text" id="city" name="city" placeholder="e.g., Johannesburg, Sandton, 123 Main St" autocomplete="address-level2" required>
                     </div>
                     <div class="form-group">
                         <label for="postalCode">Postal Code</label>
@@ -405,15 +405,7 @@
 
             <!-- DELIVERY OPTIONS -->
             <div class="section">
-                <div class="section-title">Delivery Options - We deliver Pudo Lockers at R150 included on every order.
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="citySearch">City/Area *</label>
-                        <input type="text" id="citySearch" name="citySearch" placeholder="e.g., Johannesburg, Cape Town, Durban" required>
-                    </div>
-                </div>
+                <div class="section-title">Delivery Options - We deliver Pudo Lockers at R150 included on every order.</div>
 
                 <div class="form-grid">
                     <div class="form-group" style="grid-column: 1; align-items: flex-start;">
@@ -431,7 +423,7 @@
                     <div class="form-group">
                         <label for="lockerDropdown">Select Locker Location *</label>
                         <select id="lockerDropdown" name="lockerDropdown" required>
-                            <option value="">Loading lockers...</option>
+                            <option value="">Select a locker...</option>
                         </select>
                     </div>
                 </div>
@@ -469,22 +461,14 @@
     </div>
 
     <script>
-        // Google Apps Script URL (handles both enquiries and locker fetches)
+        // Supabase Edge Function URL for locker fetches
+        const SUPABASE_LOCKER_URL = 'https://avjzzzdpnmkgxzxrpxdm.supabase.co/functions/v1/get-lockers';
+
+        // Google Apps Script URL for enquiry submissions
         const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9ThlF7Qnxe2BlesdW62g_vV0fNn1U74JHzsfgDVQ6wOPbN3A-i17ERktjggsrRODC/exec';
 
-        // City to coordinates mapping (South Africa)
-        const CITY_COORDINATES = {
-            'johannesburg': { lat: -26.2023, lng: 28.0436 },
-            'pretoria': { lat: -25.7461, lng: 28.2281 },
-            'cape town': { lat: -33.9249, lng: 18.4241 },
-            'durban': { lat: -29.8587, lng: 31.0218 },
-            'bloemfontein': { lat: -29.1200, lng: 25.5200 },
-            'port elizabeth': { lat: -33.9841, lng: 25.6053 },
-            'east london': { lat: -33.0156, lng: 27.9116 },
-            'pietermaritzburg': { lat: -29.6100, lng: 30.3833 },
-            'polokwane': { lat: -23.9012, lng: 29.4197 },
-            'nelspruit': { lat: -25.4834, lng: 30.9667 }
-        };
+        // Nominatim Geocoding API URL
+        const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 
         // Product list
         const PRODUCTS = [
@@ -519,30 +503,48 @@
         window.addEventListener('load', () => {
             addItemRow();
             setupDeliveryOptions();
-            setupCitySearch();
+            setupCityWatcher();
+            loadLockersFromCity();
         });
 
-        function setupCitySearch() {
-            const citySearch = document.getElementById('citySearch');
-            const lockerDropdown = document.getElementById('lockerDropdown');
+        function setupCityWatcher() {
+            const cityField = document.getElementById('city');
 
-            citySearch.addEventListener('change', function() {
-                const city = this.value.toLowerCase().trim();
-                if (city && CITY_COORDINATES[city]) {
-                    const coords = CITY_COORDINATES[city];
-                    loadLockers(coords.lat, coords.lng);
-                } else if (city) {
-                    lockerDropdown.innerHTML = '<option value="">City not found. Try another.</option>';
-                }
-            });
+            cityField.addEventListener('change', loadLockersFromCity);
+            cityField.addEventListener('blur', loadLockersFromCity);
+        }
 
-            citySearch.addEventListener('blur', function() {
-                const city = this.value.toLowerCase().trim();
-                if (city && CITY_COORDINATES[city]) {
-                    const coords = CITY_COORDINATES[city];
-                    loadLockers(coords.lat, coords.lng);
+        async function loadLockersFromCity() {
+            const locationField = document.getElementById('city');
+            const location = locationField.value.trim();
+
+            if (!location) {
+                document.getElementById('lockerDropdown').innerHTML = '<option value="">Enter your city/suburb/street</option>';
+                return;
+            }
+
+            document.getElementById('lockerDropdown').innerHTML = '<option value="">Searching for lockers...</option>';
+
+            try {
+                // Geocode the location using Nominatim
+                const geocodeResponse = await fetch(`${NOMINATIM_URL}?q=${encodeURIComponent(location)}&format=json&limit=1`);
+                const geocodeData = await geocodeResponse.json();
+
+                if (!geocodeData || geocodeData.length === 0) {
+                    document.getElementById('lockerDropdown').innerHTML = '<option value="">Location not found. Try another.</option>';
+                    return;
                 }
-            });
+
+                const result = geocodeData[0];
+                const lat = parseFloat(result.lat);
+                const lng = parseFloat(result.lon);
+
+                console.log(`Geocoded "${location}" to lat: ${lat}, lng: ${lng}`);
+                loadLockers(lat, lng);
+            } catch (error) {
+                console.error('Geocoding error:', error);
+                document.getElementById('lockerDropdown').innerHTML = '<option value="">Error finding location. Try another.</option>';
+            }
         }
 
         function setupDeliveryOptions() {
@@ -560,34 +562,48 @@
                 }
             });
 
-            // Initially hide locker section
-            lockerSection.style.display = 'none';
+            // Initially show locker section
+            lockerSection.style.display = 'block';
         }
 
         function loadLockers(lat, lng) {
             const lockerDropdown = document.getElementById('lockerDropdown');
             lockerDropdown.innerHTML = '<option value="">Loading lockers...</option>';
 
-            (async function() {
+            (async function () {
                 try {
-                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    const response = await fetch(SUPABASE_LOCKER_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'getLockers', lat: lat, lng: lng })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ lat: lat, lng: lng })
                     });
 
-                    const responseText = await response.text();
-                    console.log('API Response:', responseText);
-                    const lockers = JSON.parse(responseText);
+                    const data = await response.json();
+                    console.log('API Response:', data);
 
                     // Clear loading option
                     lockerDropdown.innerHTML = '<option value="">Select Locker Location</option>';
 
+                    // Handle error response from API
+                    if (data.error) {
+                        console.error('API Error:', data.error);
+                        lockerDropdown.innerHTML = '<option value="">Error loading lockers. Try another city.</option>';
+                        return;
+                    }
+
                     // Add locker options
-                    if (Array.isArray(lockers) && lockers.length > 0) {
-                        lockers.forEach(locker => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(locker => {
                             const option = document.createElement('option');
-                            option.value = locker.id || locker.code;
-                            option.textContent = locker.name || locker.location || `${locker.city} - ${locker.address}`;
+                            option.value = locker.id || locker.code || locker.reference_code;
+                            option.textContent = locker.name || locker.location || locker.address || `Locker at ${locker.city}`;
+                            lockerDropdown.appendChild(option);
+                        });
+                    } else if (data.data && Array.isArray(data.data)) {
+                        data.data.forEach(locker => {
+                            const option = document.createElement('option');
+                            option.value = locker.id || locker.code || locker.reference_code;
+                            option.textContent = locker.name || locker.location || locker.address || `Locker at ${locker.city}`;
                             lockerDropdown.appendChild(option);
                         });
                     } else {
