@@ -616,29 +616,19 @@
                         lockers = data.data;
                     }
 
-                    // Filter lockers within 5km and calculate distances
-                    const lockersWithDistance = lockers
-                        .map(locker => {
-                            const lockerLat = parseFloat(locker.latitude || locker.lat || locker.pickup_point_latitude || 0);
-                            const lockerLng = parseFloat(locker.longitude || locker.lon || locker.pickup_point_longitude || 0);
-                            return {
-                                ...locker,
-                                distance: lockerLat && lockerLng ? calculateDistance(lat, lng, lockerLat, lockerLng) : 999
-                            };
-                        })
-                        .filter(locker => locker.distance <= 5)
+                    // Sort lockers alphabetically (API already returns them by proximity)
+                    const sortedLockers = lockers
                         .sort((a, b) => (a.name || a.location || a.address || 'Locker').localeCompare(b.name || b.location || b.address || 'Locker'));
 
-                    if (lockersWithDistance.length > 0) {
-                        lockersWithDistance.forEach(locker => {
+                    if (sortedLockers.length > 0) {
+                        sortedLockers.forEach(locker => {
                             const option = document.createElement('option');
-                            option.value = locker.id || locker.code || locker.reference_code;
-                            const distText = locker.distance.toFixed(1);
-                            option.textContent = `${locker.name || locker.location || locker.address || 'Locker'} (${distText}km)`;
+                            option.value = locker.id || locker.code || locker.reference_code || locker.pickup_point_id;
+                            option.textContent = locker.name || locker.location || locker.address || 'Locker';
                             lockerDropdown.appendChild(option);
                         });
                     } else {
-                        lockerDropdown.innerHTML = '<option value="">No lockers within 5km</option>';
+                        lockerDropdown.innerHTML = '<option value="">No lockers available</option>';
                     }
                 } catch (error) {
                     console.error('Error loading lockers:', error);
