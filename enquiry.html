@@ -567,6 +567,17 @@
             lockerSection.style.display = 'block';
         }
 
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distance in km
+        }
+
         function loadLockers(lat, lng) {
             const lockerDropdown = document.getElementById('lockerDropdown');
             lockerDropdown.innerHTML = '<option value="">Loading lockers...</option>';
@@ -595,7 +606,7 @@
                         return;
                     }
 
-                    // Add locker options
+                    // Extract locker list
                     let lockers = [];
                     if (data.pickup_points && Array.isArray(data.pickup_points)) {
                         lockers = data.pickup_points;
@@ -605,15 +616,29 @@
                         lockers = data.data;
                     }
 
-                    if (lockers.length > 0) {
-                        lockers.forEach(locker => {
+                    // Filter lockers within 5km and calculate distances
+                    const lockersWithDistance = lockers
+                        .map(locker => ({
+                            ...locker,
+                            distance: calculateDistance(
+                                lat, lng,
+                                parseFloat(locker.latitude || locker.lat),
+                                parseFloat(locker.longitude || locker.lon)
+                            )
+                        }))
+                        .filter(locker => locker.distance <= 5)
+                        .sort((a, b) => a.distance - b.distance);
+
+                    if (lockersWithDistance.length > 0) {
+                        lockersWithDistance.forEach(locker => {
                             const option = document.createElement('option');
                             option.value = locker.id || locker.code || locker.reference_code;
-                            option.textContent = locker.name || locker.location || locker.address || `Locker at ${locker.city}`;
+                            const distText = locker.distance.toFixed(1);
+                            option.textContent = `${locker.name || locker.location || locker.address || 'Locker'} (${distText}km)`;
                             lockerDropdown.appendChild(option);
                         });
                     } else {
-                        lockerDropdown.innerHTML = '<option value="">No lockers available</option>';
+                        lockerDropdown.innerHTML = '<option value="">No lockers within 5km</option>';
                     }
                 } catch (error) {
                     console.error('Error loading lockers:', error);
