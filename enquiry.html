@@ -618,14 +618,14 @@
 
                     // Filter lockers within 5km and calculate distances
                     const lockersWithDistance = lockers
-                        .map(locker => ({
-                            ...locker,
-                            distance: calculateDistance(
-                                lat, lng,
-                                parseFloat(locker.latitude || locker.lat),
-                                parseFloat(locker.longitude || locker.lon)
-                            )
-                        }))
+                        .map(locker => {
+                            const lockerLat = parseFloat(locker.latitude || locker.lat || locker.pickup_point_latitude || 0);
+                            const lockerLng = parseFloat(locker.longitude || locker.lon || locker.pickup_point_longitude || 0);
+                            return {
+                                ...locker,
+                                distance: lockerLat && lockerLng ? calculateDistance(lat, lng, lockerLat, lockerLng) : 999
+                            };
+                        })
                         .filter(locker => locker.distance <= 5)
                         .sort((a, b) => (a.name || a.location || a.address || 'Locker').localeCompare(b.name || b.location || b.address || 'Locker'));
 
