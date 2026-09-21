@@ -938,34 +938,35 @@
             try {
                 const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(enquiryData)
                 });
 
-                // With no-cors mode, request succeeds (can't read response)
-                document.getElementById('loading').style.display = 'none';
-                showThankYouModal();
+                const result = await response.json();
 
-                // Reset form after modal is shown
-                setTimeout(() => {
-                    document.getElementById('orderForm').reset();
-                    document.getElementById('itemsTableBody').innerHTML = '';
-                    addItemRow();
-                }, 1000);
+                document.getElementById('loading').style.display = 'none';
+
+                if (result.success || response.ok) {
+                    showThankYouModal();
+                    console.log('Enquiry submitted successfully:', result);
+
+                    // Reset form after modal is shown
+                    setTimeout(() => {
+                        document.getElementById('orderForm').reset();
+                        document.getElementById('itemsTableBody').innerHTML = '';
+                        addItemRow();
+                    }, 1000);
+                } else {
+                    showAlert('error', result.error || 'Failed to submit enquiry. Please try again.');
+                    console.error('Server error:', result);
+                }
 
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
-                console.error('Error:', error);
-                // Still show thank you modal since data was sent (no-cors mode)
-                showThankYouModal();
-                setTimeout(() => {
-                    document.getElementById('orderForm').reset();
-                    document.getElementById('itemsTableBody').innerHTML = '';
-                    addItemRow();
-                }, 1000);
+                console.error('Fetch error:', error);
+                showAlert('error', 'Error submitting enquiry: ' + error.message);
             }
         });
 
