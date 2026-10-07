@@ -633,36 +633,36 @@
         // Bundle definitions
         const BUNDLES = {
             'GLOW_GO': [
-                { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
-                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1, price: 1400 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1, price: 700 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1, price: 80 }
             ],
             'RETA_GLOW': [
-                { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
-                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1, price: 1900 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1, price: 700 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1, price: 80 }
             ],
             'SUMMER_STACK_1': [
-                { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
-                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
-                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1, price: 1400 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1, price: 700 },
+                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1, price: 750 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1, price: 80 }
             ],
             'SUMMER_STACK_2': [
-                { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
-                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
-                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1, price: 1900 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1, price: 700 },
+                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1, price: 750 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1, price: 80 }
             ],
             'GLOW_DUO': [
-                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                { sku: 'BC10', name: 'BPC-157 10mg', qty: 1 },
-                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1, price: 700 },
+                { sku: 'BC10', name: 'BPC-157 10mg', qty: 1, price: 580 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1, price: 80 }
             ],
             'CELLULAR_RESET': [
-                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
-                { sku: 'NJ500', name: 'NAD+ 500 mg', qty: 1 },
-                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1, price: 750 },
+                { sku: 'NJ500', name: 'NAD+ 500 mg', qty: 1, price: 750 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1, price: 80 }
             ]
         };
 
@@ -851,29 +851,42 @@
 
                     // Check if this is a bundle
                     if (BUNDLES[sku]) {
-                        // Expand bundle to individual items
-                        BUNDLES[sku].forEach((item, index) => {
-                            if (index === 0) {
-                                // Use current row for first item
-                                const firstItemSelect = row.querySelector('.product-select');
-                                firstItemSelect.value = `${item.sku}|${item.name}|${item.price || '0'}`;
-                                row.querySelector('.quantity').value = item.qty;
-                            } else {
-                                // Add new rows for remaining items
-                                addItemRow();
-                                const tbody = document.getElementById('itemsTableBody');
-                                const lastRow = tbody.querySelector('.item-row:last-of-type');
-                                lastRow.querySelector('.product-select').value = `${item.sku}|${item.name}|${item.price || '0'}`;
-                                lastRow.querySelector('.quantity').value = item.qty;
-                            }
-                        });
-                    }
+                        // Remove this row since we'll replace it with bundle items
+                        row.remove();
 
-                    // Check if this is the last row
-                    const lastRow = tbody.rows[tbody.rows.length - 1];
-                    const lastProduct = lastRow.querySelector('.product-select').value;
-                    if (lastProduct && this === productSelect) {
+                        // Add bundle items
+                        BUNDLES[sku].forEach((item) => {
+                            const newRow = document.createElement('tr');
+                            newRow.className = 'item-row';
+                            const bundleOptions = '<option value="">Select Product</option>' +
+                                PRODUCTS.map(p => `<option value="${p.sku}|${p.name}|${p.price}">${p.name}</option>`).join('');
+
+                            newRow.innerHTML = `
+                                <td>
+                                    <select class="product-select" name="product" autocomplete="off" disabled>
+                                        <option value="${item.sku}|${item.name}|${item.price}" selected>${item.name}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" class="quantity" name="quantity" value="${item.qty}" min="1" autocomplete="off">
+                                </td>
+                                <td>
+                                    <button type="button" class="btn-remove" onclick="removeItemRow(this)">Remove</button>
+                                </td>
+                            `;
+                            document.getElementById('itemsTableBody').appendChild(newRow);
+                        });
+
+                        // Add empty row for next selection
                         addItemRow();
+                    } else {
+                        // Regular product - check if this is the last row
+                        const tbody = document.getElementById('itemsTableBody');
+                        const lastRow = tbody.querySelector('.item-row:last-of-type');
+                        const lastProduct = lastRow.querySelector('.product-select').value;
+                        if (lastProduct && this === productSelect) {
+                            addItemRow();
+                        }
                     }
                 }
             });
