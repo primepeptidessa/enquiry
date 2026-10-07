@@ -542,29 +542,9 @@
                 </div>
             </div>
 
-            <!-- BUNDLE SPECIALS -->
-            <div class="section">
-                <div class="section-title">Summer Bundle Specials (Optional)</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="bundleSelect">Select a Bundle Special</label>
-                        <select id="bundleSelect" name="bundle">
-                            <option value="">-- No Bundle --</option>
-                            <option value="GLOW_GO">GLOW & GO - R1,700 (Tirzep + GHK-Cu + FREE Bac Water)</option>
-                            <option value="RETA_GLOW">RETA GLOW - R2,200 (Reta + GHK-Cu + FREE Bac Water)</option>
-                            <option value="SUMMER_STACK_1">SUMMER STACK 1 - R2,500 (Tirzep + GHK-Cu + MOTS-C + FREE Bac Water)</option>
-                            <option value="SUMMER_STACK_2">SUMMER STACK 2 - R2,800 (Reta + GHK-Cu + MOTS-C + FREE Bac Water)</option>
-                            <option value="GLOW_DUO">GLOW DUO - R990 (GHK-Cu + BPC-157 + FREE Bac Water)</option>
-                            <option value="CELLULAR_RESET">CELLULAR RESET - R1,250 (MOTS-C + NAD+ 500mg + FREE Bac Water)</option>
-                        </select>
-                        <small>Selecting a bundle will add all items. You can add more items below.</small>
-                    </div>
-                </div>
-            </div>
-
             <!-- ITEMS -->
             <div class="section">
-                <div class="section-title">Items</div>
+                <div class="section-title">Items (Bundle specials at top of dropdown)</div>
 
                 <table class="items-table">
                     <thead>
@@ -618,6 +598,14 @@
 
         // Product list
         const PRODUCTS = [
+            // Bundle Specials
+            { sku: 'GLOW_GO', name: 'BUNDLE: GLOW & GO - R1,700', price: 1700.00, isBundle: true },
+            { sku: 'RETA_GLOW', name: 'BUNDLE: RETA GLOW - R2,200', price: 2200.00, isBundle: true },
+            { sku: 'SUMMER_STACK_1', name: 'BUNDLE: SUMMER STACK 1 - R2,500', price: 2500.00, isBundle: true },
+            { sku: 'SUMMER_STACK_2', name: 'BUNDLE: SUMMER STACK 2 - R2,800', price: 2800.00, isBundle: true },
+            { sku: 'GLOW_DUO', name: 'BUNDLE: GLOW DUO - R990', price: 990.00, isBundle: true },
+            { sku: 'CELLULAR_RESET', name: 'BUNDLE: CELLULAR RESET - R1,250', price: 1250.00, isBundle: true },
+            // Regular Products
             { sku: '50AM', name: '5-Amino-1MQ 50 mg', price: 1400.00 },
             { sku: 'BC10', name: 'BPC-157 10mg', price: 580.00 },
             { sku: 'Bac10', name: 'Bacteriostatic Water 10ml', price: 180.00 },
@@ -644,56 +632,38 @@
 
         // Bundle definitions
         const BUNDLES = {
-            'GLOW_GO': {
-                name: 'GLOW & GO',
-                items: [
-                    { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
-                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
-                ]
-            },
-            'RETA_GLOW': {
-                name: 'RETA GLOW',
-                items: [
-                    { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
-                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
-                ]
-            },
-            'SUMMER_STACK_1': {
-                name: 'SUMMER STACK 1',
-                items: [
-                    { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
-                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                    { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
-                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
-                ]
-            },
-            'SUMMER_STACK_2': {
-                name: 'SUMMER STACK 2',
-                items: [
-                    { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
-                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                    { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
-                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
-                ]
-            },
-            'GLOW_DUO': {
-                name: 'GLOW DUO',
-                items: [
-                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
-                    { sku: 'BC10', name: 'BPC-157 10mg', qty: 1 },
-                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
-                ]
-            },
-            'CELLULAR_RESET': {
-                name: 'CELLULAR RESET',
-                items: [
-                    { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
-                    { sku: 'NJ500', name: 'NAD+ 500 mg', qty: 1 },
-                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
-                ]
-            }
+            'GLOW_GO': [
+                { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+            ],
+            'RETA_GLOW': [
+                { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+            ],
+            'SUMMER_STACK_1': [
+                { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+            ],
+            'SUMMER_STACK_2': [
+                { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+            ],
+            'GLOW_DUO': [
+                { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                { sku: 'BC10', name: 'BPC-157 10mg', qty: 1 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+            ],
+            'CELLULAR_RESET': [
+                { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
+                { sku: 'NJ500', name: 'NAD+ 500 mg', qty: 1 },
+                { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+            ]
         };
 
         // Add initial empty item row and setup delivery options
@@ -701,42 +671,7 @@
             addItemRow();
             setupDeliveryOptions();
             setupCityWatcher();
-            setupBundleSelector();
         });
-
-        function setupBundleSelector() {
-            const bundleSelect = document.getElementById('bundleSelect');
-            bundleSelect.addEventListener('change', function() {
-                const bundleId = this.value;
-                if (bundleId && BUNDLES[bundleId]) {
-                    addBundleToItems(BUNDLES[bundleId]);
-                }
-            });
-        }
-
-        function addBundleToItems(bundle) {
-            const tbody = document.getElementById('itemsTableBody');
-
-            // Add all bundle items
-            bundle.items.forEach(item => {
-                const lastRow = tbody.querySelector('.item-row:last-of-type');
-                if (lastRow) {
-                    const select = lastRow.querySelector('.product-select');
-                    if (!select.value) {
-                        // Use the last empty row
-                        select.value = `${item.sku}|${item.name}|${item.price || '0'}`;
-                        lastRow.querySelector('.quantity').value = item.qty;
-                    } else {
-                        // Add new row
-                        addItemRow();
-                        const newLastRow = tbody.querySelector('.item-row:last-of-type');
-                        newLastRow.querySelector('.product-select').value = `${item.sku}|${item.name}|${item.price || '0'}`;
-                        newLastRow.querySelector('.quantity').value = item.qty;
-                    }
-                }
-                addItemRow();  // Ensure there's always an empty row
-            });
-        }
 
         function setupCityWatcher() {
             const pudoCityField = document.getElementById('pudoCity');
@@ -757,7 +692,6 @@
             document.getElementById('lockerDropdown').innerHTML = '<option value="">Searching for lockers...</option>';
 
             try {
-                // Geocode the location using Nominatim
                 const geocodeResponse = await fetch(`${NOMINATIM_URL}?q=${encodeURIComponent(location)}&format=json&limit=1`);
                 const geocodeData = await geocodeResponse.json();
 
@@ -808,14 +742,14 @@
         }
 
         function calculateDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371; // Earth's radius in km
+            const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLng = (lng2 - lng1) * Math.PI / 180;
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                 Math.sin(dLng / 2) * Math.sin(dLng / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c; // Distance in km
+            return R * c;
         }
 
         function loadLockers(lat, lng) {
@@ -835,21 +769,15 @@
 
                     const data = await response.json();
                     console.log('API Response:', data);
-                    if (data.pickup_points && data.pickup_points.length > 0) {
-                        console.log('Sample locker object:', data.pickup_points[0]);
-                    }
 
-                    // Clear loading option
                     lockerDropdown.innerHTML = '<option value="">Select Locker Location</option>';
 
-                    // Handle error response from API
                     if (data.error) {
                         console.error('API Error:', data.error);
                         lockerDropdown.innerHTML = '<option value="">Error loading lockers. Try another city.</option>';
                         return;
                     }
 
-                    // Extract locker list
                     let lockers = [];
                     if (data.pickup_points && Array.isArray(data.pickup_points)) {
                         lockers = data.pickup_points;
@@ -859,7 +787,6 @@
                         lockers = data.data;
                     }
 
-                    // Filter by 5km radius and sort alphabetically
                     const filteredLockers = lockers.filter(locker => {
                         const lockerLat = locker.latitude || locker.lat;
                         const lockerLng = locker.longitude || locker.lng;
@@ -870,7 +797,7 @@
                         }
 
                         const distance = calculateDistance(lat, lng, parseFloat(lockerLat), parseFloat(lockerLng));
-                        return distance <= 5; // 5km radius
+                        return distance <= 5;
                     });
 
                     const sortedLockers = filteredLockers
@@ -895,11 +822,9 @@
 
         function addItemRow() {
             const tbody = document.getElementById('itemsTableBody');
-
             const row = document.createElement('tr');
             row.className = 'item-row';
 
-            // Create product dropdown
             const productOptions = '<option value="">Select Product</option>' +
                 PRODUCTS.map(p => `<option value="${p.sku}|${p.name}|${p.price}">${p.name}</option>`).join('');
 
@@ -919,15 +844,34 @@
 
             tbody.appendChild(row);
 
-            // Add event listener to auto-add next row when product is selected
             const productSelect = row.querySelector('.product-select');
             productSelect.addEventListener('change', function () {
                 if (this.value) {
+                    const [sku, name, price] = this.value.split('|');
+
+                    // Check if this is a bundle
+                    if (BUNDLES[sku]) {
+                        // Expand bundle to individual items
+                        BUNDLES[sku].forEach((item, index) => {
+                            if (index === 0) {
+                                // Use current row for first item
+                                const firstItemSelect = row.querySelector('.product-select');
+                                firstItemSelect.value = `${item.sku}|${item.name}|${item.price || '0'}`;
+                                row.querySelector('.quantity').value = item.qty;
+                            } else {
+                                // Add new rows for remaining items
+                                addItemRow();
+                                const tbody = document.getElementById('itemsTableBody');
+                                const lastRow = tbody.querySelector('.item-row:last-of-type');
+                                lastRow.querySelector('.product-select').value = `${item.sku}|${item.name}|${item.price || '0'}`;
+                                lastRow.querySelector('.quantity').value = item.qty;
+                            }
+                        });
+                    }
+
                     // Check if this is the last row
                     const lastRow = tbody.rows[tbody.rows.length - 1];
                     const lastProduct = lastRow.querySelector('.product-select').value;
-
-                    // If the last row has a product selected, add a new empty row
                     if (lastProduct && this === productSelect) {
                         addItemRow();
                     }
@@ -939,17 +883,14 @@
             const tbody = document.getElementById('itemsTableBody');
             if (tbody.rows.length > 1) {
                 button.closest('tr').remove();
-                calculateTotals();
             } else {
                 alert('You must have at least one item in the order.');
             }
         }
 
-
         document.getElementById('orderForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            // Validate items
             const itemRows = document.querySelectorAll('#itemsTableBody .item-row');
             let hasValidItems = false;
 
@@ -967,7 +908,6 @@
                 return;
             }
 
-            // Prepare enquiry data
             const items = [];
             itemRows.forEach(row => {
                 const productSelect = row.querySelector('.product-select').value;
@@ -983,7 +923,6 @@
                 }
             });
 
-            // Validate delivery options
             const deliveryType = document.querySelector('input[name="deliveryType"]:checked');
 
             if (!deliveryType) {
@@ -1031,8 +970,6 @@
                 };
             }
 
-            const bundleSelected = document.getElementById('bundleSelect').value;
-
             const enquiryData = {
                 timestamp: new Date().toISOString(),
                 customer: {
@@ -1041,13 +978,11 @@
                     phone: document.getElementById('phone').value,
                     address: address
                 },
-                bundle: bundleSelected || null,
                 items: items,
                 delivery: deliveryInfo,
                 deliveryCharge: deliveryCharge
             };
 
-            // Show loading
             document.getElementById('loading').style.display = 'block';
 
             try {
@@ -1060,12 +995,10 @@
                     body: JSON.stringify(enquiryData)
                 });
 
-                // With no-cors mode, we can't read the response, but the request was sent
                 document.getElementById('loading').style.display = 'none';
                 showThankYouModal();
                 console.log('Enquiry submitted successfully');
 
-                // Reset form after modal is shown
                 setTimeout(() => {
                     document.getElementById('orderForm').reset();
                     document.getElementById('itemsTableBody').innerHTML = '';
@@ -1100,7 +1033,6 @@
             modal.classList.remove('show');
         }
 
-        // Close modal when clicking outside of it
         document.getElementById('thankYouModal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeThankYouModal();
