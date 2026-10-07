@@ -102,6 +102,12 @@
             min-height: 80px;
         }
 
+        .form-group small {
+            color: #666;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
         /* Items Table */
         .items-table {
             width: 100%;
@@ -536,6 +542,26 @@
                 </div>
             </div>
 
+            <!-- BUNDLE SPECIALS -->
+            <div class="section">
+                <div class="section-title">Summer Bundle Specials (Optional)</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="bundleSelect">Select a Bundle Special</label>
+                        <select id="bundleSelect" name="bundle">
+                            <option value="">-- No Bundle --</option>
+                            <option value="GLOW_GO">GLOW & GO - R1,700 (Tirzep + GHK-Cu + FREE Bac Water)</option>
+                            <option value="RETA_GLOW">RETA GLOW - R2,200 (Reta + GHK-Cu + FREE Bac Water)</option>
+                            <option value="SUMMER_STACK_1">SUMMER STACK 1 - R2,500 (Tirzep + GHK-Cu + MOTS-C + FREE Bac Water)</option>
+                            <option value="SUMMER_STACK_2">SUMMER STACK 2 - R2,800 (Reta + GHK-Cu + MOTS-C + FREE Bac Water)</option>
+                            <option value="GLOW_DUO">GLOW DUO - R990 (GHK-Cu + BPC-157 + FREE Bac Water)</option>
+                            <option value="CELLULAR_RESET">CELLULAR RESET - R1,250 (MOTS-C + NAD+ 500mg + FREE Bac Water)</option>
+                        </select>
+                        <small>Selecting a bundle will add all items. You can add more items below.</small>
+                    </div>
+                </div>
+            </div>
+
             <!-- ITEMS -->
             <div class="section">
                 <div class="section-title">Items</div>
@@ -582,7 +608,7 @@
     <script>
         // Supabase configuration
         const SUPABASE_LOCKER_URL = 'https://avjzzzdpnmkgxzxrpxdm.supabase.co/functions/v1/get-lockers';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2anp6emRwbm1rZ3h6eHJweGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5MDg2MzQsImV4cCI6MjEwNDQ4NDYzNH0.hsRS8n5W0iN5ozuhu5gXSMmH7_VZZRF4jtrGT7iPjn0';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2anp6emRwbm1rZ3h6eHJweGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5MDg2MzQsImV4cCI6MjEwNDQ4NDYzNH0.hsRS8n5W0iN5ozuhu5gXSMmH7_VZZRF4jtrGT7iPjn0';
 
         // Google Apps Script URL for enquiry submissions
         const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzplQmeGXE0IvY9r_wlBaBvsum4ynKJaRMITVxPK7y4okrHDQ8ua0-gW5_7ucBvODF2/exec';
@@ -616,12 +642,101 @@
             { sku: 'TR30', name: 'Tirzepatide 30 mg', price: 1400.00 }
         ];
 
+        // Bundle definitions
+        const BUNDLES = {
+            'GLOW_GO': {
+                name: 'GLOW & GO',
+                items: [
+                    { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
+                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                ]
+            },
+            'RETA_GLOW': {
+                name: 'RETA GLOW',
+                items: [
+                    { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
+                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                ]
+            },
+            'SUMMER_STACK_1': {
+                name: 'SUMMER STACK 1',
+                items: [
+                    { sku: 'TR30', name: 'Tirzepatide 30 mg', qty: 1 },
+                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                    { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
+                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                ]
+            },
+            'SUMMER_STACK_2': {
+                name: 'SUMMER STACK 2',
+                items: [
+                    { sku: 'RT30', name: 'Retatrutide 30 mg', qty: 1 },
+                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                    { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
+                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                ]
+            },
+            'GLOW_DUO': {
+                name: 'GLOW DUO',
+                items: [
+                    { sku: 'CU50', name: 'GHK-Cu 50 mg', qty: 1 },
+                    { sku: 'BC10', name: 'BPC-157 10mg', qty: 1 },
+                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                ]
+            },
+            'CELLULAR_RESET': {
+                name: 'CELLULAR RESET',
+                items: [
+                    { sku: 'MS10', name: 'MOTS-C 10mg', qty: 1 },
+                    { sku: 'NJ500', name: 'NAD+ 500 mg', qty: 1 },
+                    { sku: 'BA3', name: 'Bacteriostatic Water 3 ml', qty: 1 }
+                ]
+            }
+        };
+
         // Add initial empty item row and setup delivery options
         window.addEventListener('load', () => {
             addItemRow();
             setupDeliveryOptions();
             setupCityWatcher();
+            setupBundleSelector();
         });
+
+        function setupBundleSelector() {
+            const bundleSelect = document.getElementById('bundleSelect');
+            bundleSelect.addEventListener('change', function() {
+                const bundleId = this.value;
+                if (bundleId && BUNDLES[bundleId]) {
+                    addBundleToItems(BUNDLES[bundleId]);
+                }
+            });
+        }
+
+        function addBundleToItems(bundle) {
+            const tbody = document.getElementById('itemsTableBody');
+
+            // Add all bundle items
+            bundle.items.forEach(item => {
+                const lastRow = tbody.querySelector('.item-row:last-of-type');
+                if (lastRow) {
+                    const select = lastRow.querySelector('.product-select');
+                    if (!select.value) {
+                        // Use the last empty row
+                        select.value = `${item.sku}|${item.name}|${item.price || '0'}`;
+                        lastRow.querySelector('.quantity').value = item.qty;
+                    } else {
+                        // Add new row
+                        addItemRow();
+                        const newLastRow = tbody.querySelector('.item-row:last-of-type');
+                        newLastRow.querySelector('.product-select').value = `${item.sku}|${item.name}|${item.price || '0'}`;
+                        newLastRow.querySelector('.quantity').value = item.qty;
+                    }
+                }
+                addItemRow();  // Ensure there's always an empty row
+            });
+        }
 
         function setupCityWatcher() {
             const pudoCityField = document.getElementById('pudoCity');
@@ -916,6 +1031,8 @@
                 };
             }
 
+            const bundleSelected = document.getElementById('bundleSelect').value;
+
             const enquiryData = {
                 timestamp: new Date().toISOString(),
                 customer: {
@@ -924,6 +1041,7 @@
                     phone: document.getElementById('phone').value,
                     address: address
                 },
+                bundle: bundleSelected || null,
                 items: items,
                 delivery: deliveryInfo,
                 deliveryCharge: deliveryCharge
