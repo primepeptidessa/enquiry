@@ -188,6 +188,9 @@
         const form = document.getElementById('signupForm');
         const messageDiv = document.getElementById('message');
 
+        // Same Google Apps Script URL used for enquiries
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzU-Ac4fhNtFvfIiAOnQQc_gHvpDYYvUfJj_qXvEEIqZp0i-pj72PuKU3aYLeHreWod/exec';
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -207,17 +210,20 @@
                 return;
             }
 
-            // Submit
+            // Submit to Google Sheet
             form.querySelector('button').classList.add('loading');
             form.querySelector('button').innerHTML = '<span class="spinner"></span>Creating...';
 
             try {
-                const response = await fetch('/api/affiliate/signup', {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        sheet: 'Affiliate Customers',
+                        timestamp: new Date().toISOString(),
                         affiliate_code: affiliateCode,
                         customer_name: customerName,
                         customer_email: customerEmail,
@@ -225,14 +231,8 @@
                     })
                 });
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    showMessage(data.error || 'Error creating customer', 'error');
-                    return;
-                }
-
-                showMessage(`Customer "${customerName}" created successfully!`, 'success');
+                // With no-cors mode, we can't read the response, but if fetch succeeds, submission was likely successful
+                showMessage(`Customer "${customerName}" registered successfully!`, 'success');
                 form.reset();
                 setTimeout(() => {
                     messageDiv.textContent = '';
